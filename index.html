@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="SpeechReward: A Multi-Dimensional and Interpretable Reward Model for Fine-Grained Speech Assessment via Reinforcement Learning">
+  <meta name="keywords" content="Nerfies, D-NeRF, NeRF">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SpeechReward</title>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7749G0HJZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7749G0HJZ');
+</script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-body" style="padding-bottom: 24px;">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">SpeechReward: A Multi-Dimensional and Interpretable Reward Model for Fine-Grained Speech Assessment via Reinforcement Learning</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">Anonymous authors</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+<section class="section" style="padding-top: 0px;">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            While Text-to-Speech (TTS) technology has achieved remarkable advancements in generating high-fidelity synthetic speech, its fine-grained evaluation remains a significant challenge, often relying on labor-intensive manual assessment. In this work, we propose SpeechReward, a novel multi-dimensional, evaluable, and interpretable reward model designed to automate and standardize fine-grained speech assessment. Our approach begins with the construction of a comprehensive, bilingual synthetic speech dataset. We then design a series of structured evaluation questions targeting five core dimensions—prosody, pronunciation, emotion, quality, and stability—and leverage a powerful closed-source model to generate detailed Chain-of-Thought (CoT) reasoning for each annotation. Subsequently, we employ an integrated training paradigm that combines supervised fine-tuning for a cold-start, followed by a targeted reinforcement learning phase to cultivate dimension-specific expert models, which are then consolidated into a single unified model via weight merging. Experimental results demonstrate that SpeechReward significantly outperforms existing open-source and proprietary models in speech assessment capabilities and provides superior interpretability through its CoT-based explanations. More importantly, SpeechReward establishes a new, robust paradigm for automated speech evaluation and provides actionable metrics that can be used for the granular fine-tuning of next-generation TTS systems.
+          </p>
+        </div>
+
+      </div>
+    </div>
+    <!--/ Abstract. -->
+
+  </div>
+</section>
+<section class="hero teaser">
+  <div class="container is-max-desktop is-centered has-text-centered">
+    <div class="hero-body">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <!-- <h2 class="title is-3">Performance of SpeechReward and previous audio langauge models including Kimi-Audio, Qwen2-Audio, Step-Audio and GLM-4-Voice in five dimentions of speech assessment.</h2> -->
+          <img src="./static/images/radar.png"
+                    class="interpolation-image"
+                    alt="Interpolate start reference image."/>
+          <h2 class="has-text-centered is-8">
+            Performance of SpeechReward and previous audio langauge models including Kimi-Audio, Qwen2-Audio, Step-Audio and GLM-4-Voice in five dimentions of speech assessment.
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="hero teaser">
+  <div class="container is-max-desktop is-centered has-text-centered">
+    <div class="hero-body">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Model Overview</h2>
+          <img src="./static/images/framework.png"
+                    class="interpolation-image"
+                    alt="Interpolate start reference image."/>
+          <h2 class="has-text-centered is-8">
+            The overall architecture of SpeechReward.
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Stage 1: Fine-Grained Dataset Generation</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <style>
+        .container {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        .table-container {
+            margin-top: 1.5rem;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        .table th {
+            font-weight: bold;
+        }
+        .card-header-title {
+            color: #363636;
+        }
+        .audio-row td {
+            text-align: center;
+        }
+        .audio-player-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 0;
+        }
+        .audio-player {
+            width: 80%;
+        }
+    </style>
+</head>
+<body> -->
+
+
+<!-- ========== 开始：Stage 1 Section (重构后样式) ========== -->
+<section id="stage-1-section">
+  <div class="hero is-light is-small">
+      <div class="hero-body">
+          <div class="container has-text-centered">
+              <h1 class="title is-3">Fine-Grained Dataset Generation</h1>
+          </div>
+      </div>
+  </div>
+
+  <div class="section">
+      <div class="container is-max-desktop">
+
+          <!-- Audio Sample 1 Card -->
+          <div class="card mb-5">
+              <header class="card-header">
+                  <p class="card-header-title is-size-5">Audio Sample 1</p>
+              </header>
+              <div class="card-content">
+                  <div class="table-container">
+                      <table class="table is-bordered is-striped is-hoverable is-fullwidth">
+                          <thead>
+                              <tr class="audio-row">
+                                  <td colspan="4">
+                                      <audio controls style="width: 100%;"><source src="./static/audio_sample/7002.wav" type="audio/wav"></audio>
+                                  </td>
+                              </tr>
+                              <tr class="is-selected">
+                                  <th style="width: 20%;">Dimension</th>
+                                  <th style="width: 25%;">Question</th>
+                                  <th style="width: 40%;">Analysis</th>
+                                  <th style="width: 15%;" class="has-text-centered">Result</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              <tr>
+                                  <td rowspan="2" class="dimension-cell"><div class="dimension-title"><span class="icon"><i class="fas fa-bullhorn"></i></span><span>Pronunciation</span></div></td>
+                                  <td>Are the pronunciations clear and distinct?</td>
+                                  <td>The pronunciations are exceptionally clear and distinct. The speaker articulates each word precisely, with no slurring, mumbling, or indistinct sounds. The clarity allows for effortless comprehension of every utterance.</td>
+                                  <td class="has-text-centered"><span class="tag is-success">yes</span></td>
+                              </tr>
+                              <tr>
+                                  <td>Is the speech intelligible and easy to understand overall?</td>
+                                  <td>The speech is clear and well-enunciated, making it entirely intelligible. While there is noticeable background ambient noise, it does not significantly mask the speech. However, its presence prevents the audio from being classified as "high quality."</td>
+                                  <td class="has-text-centered"><span class="tag is-danger">no</span></td>
+                              </tr>
+                              <tr>
+                                  <td rowspan="2" class="dimension-cell"><div class="dimension-title"><span class="icon"><i class="fas fa-star"></i></span><span>Quality</span></div></td>
+                                  <td>Are there any digital artifacts, such as clipping, crackling, or buzzing?</td>
+                                  <td>The audio is remarkably clean and free of any digital artifacts such as clipping, crackling, or buzzing. The recording quality is excellent, with clear speech and no discernible distortions.</td>
+                                  <td class="has-text-centered"><span class="tag is-success">yes</span></td>
+                              </tr>
+                              <tr>
+                                  <td>Does the voice sound full and resonant, or is it thin and lacking in low-frequency presence?</td>
+                                  <td>The voice is significantly lacking in low-frequency presence. It sounds thin and somewhat "tinny" or "telephonic," completely devoid of the warmth, body, or resonance typically associated with a full voice.</td>
+                                  <td class="has-text-centered"><span class="tag is-danger">no</span></td>
+                              </tr>
+                               <tr>
+                                  <td rowspan="2" class="dimension-cell"><div class="dimension-title"><span class="icon"><i class="fas fa-wave-square"></i></span><span>Prosody</span></div></td>
+                                  <td>Does the volume or energy of the speech have natural fluctuations, or does it remain at a constant level throughout?</td>
+                                  <td>The audio exhibits natural fluctuations in both volume and energy. The speaker varies their pitch, emphasis, and pacing throughout the recording, which is characteristic of natural human speech.</td>
+                                  <td class="has-text-centered"><span class="tag is-success">yes</span></td>
+                              </tr>
+                              <tr>
+                                  <td>Does the prosody of a sentence form a coherent whole, or does it feel like a collection of individually spoken words strung together?</td>
+                                  <td>The prosody of the audio lacks natural flow and coherence. Intonation patterns are often unnatural, rising at the end of phrases or in unexpected places. The speech feels segmented rather than forming a natural, coherent whole.</td>
+                                  <td class="has-text-centered"><span class="tag is-danger">no</span></td>
+                              </tr>
+                              <tr>
+                                  <td rowspan="2" class="dimension-cell"><div class="dimension-title"><span class="icon"><i class="fas fa-chart-line"></i></span><span>Stability</span></div></td>
+                                  <td>Does the speech flow smoothly without unnatural hesitations or stumbling?</td>
+                                  <td>The speech in the audio flows very smoothly. There are no noticeable unnatural hesitations, stumbles, or disfluencies. The delivery is clear, confident, and well-paced, indicating excellent fluency.</td>
+                                  <td class="has-text-centered"><span class="tag is-success">yes</span></td>
+                              </tr>
+                              <tr>
+                                  <td>Are pauses, both between and within sentences, placed at grammatically and logically appropriate points?</td>
+                                  <td>The speaker's pacing is generally good, with pauses occurring at natural sentence endings and logical breaks in thought. There are no instances where pauses disrupt the grammatical structure or the logical flow of the content.</td>
+                                  <td class="has-text-centered"><span class="tag is-danger">no</span></td>
+                              </tr>
+                              <tr>
+                                  <td rowspan="2" class="dimension-cell"><div class="dimension-title"><span class="icon"><i class="fas fa-smile"></i></span><span>Emotion</span></div></td>
+                                  <td>Is the emotional tone appropriate for the content being spoken?</td>
+                                  <td>The speaker's tone is calm, measured, and reflective, which is highly appropriate for the profound and philosophical nature of the content being discussed. The delivery enhances the intellectual weight of the words.</td>
+                                  <td class="has-text-centered"><span class="tag is-success">yes</span></td>
+                              </tr>
+                              <tr>
+                                  <td>Is the emotional expression consistent throughout the relevant parts of the speech?</td>
+                                  <td>The audio begins with a strong expression of excitement, but this emotional intensity is not sustained. Subsequent phrases exhibit a more subdued tone, meaning the emotional expression shifts in intensity and type.</td>
+                                  <td class="has-text-centered"><span class="tag is-danger">no</span></td>
+                              </tr>
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Audio Sample 2 Card -->
+          <div class="card">
+               <header class="card-header">
+                  <p class="card-header-title is-size-5">Audio Sample 2</p>
+              </header>
+              <div class="card-content">
+                  <div class="table-container">
+                      <table class="table is-bordered is-striped is-hoverable is-fullwidth">
+                          <thead>
+                              <tr class="audio-row">
+                                  <td colspan="4">
+                                      <audio controls style="width: 100%;"><source src="./static/audio_sample/47498.wav" type="audio/wav"></audio>
+                                  </td>
+                              </tr>
+                              <tr class="is-selected">
+                                  <th>Dimension</th>
+                                  <th>Question</th>
+                                  <th>Analysis</th>
+                                  <th class="has-text-centered">Result</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              <tr>
+                                  <td rowspan="2" class="dimension-cell"><div class="dimension-title"><span class="icon"><i class="fas fa-bullhorn"></i></span><span>Pronunciation</span></div></td>
+                                  <td>Are the pronunciations clear and distinct?</td>
+                                  <td>The speaker's pronunciations are exceptionally clear and distinct. Words are well-articulated, and there is no muddiness or slurring. Each syllable is easy to discern, contributing to excellent intelligibility.</td>
+                                  <td class="has-text-centered"><span class="tag is-success">yes</span></td>
+                              </tr>
+                              <tr>
+                                  <td>When the speaking pace increases, does the articulation clarity remain high, or does it degrade significantly and become more mumbled?</td>
+                                  <td>The speaker maintains excellent articulation clarity even when the pace of speech increases. There is no noticeable degradation, mumbling, or slurring of words; each word remains distinct and understandable.</td>
+                                  <td class="has-text-centered"><span class="tag is-success">yes</span></td>
+                              </tr>
+                              <tr>
+                                  <td rowspan="2" class="dimension-cell"><div class="dimension-title"><span class="icon"><i class="fas fa-star"></i></span><span>Quality</span></div></td>
+                                  <td>Are physical noises originating from the mouth, such as lip smacks, clicks, or saliva sounds, audible?</td>
+                                  <td>The audio does not contain any discernible lip smacks, clicks, or intrusive saliva sounds. While natural, very subtle mouth movements might be present, they are not prominent or distracting.</td>
+                                  <td class="has-text-centered"><span class="tag is-success">yes</span></td>
+                              </tr>
+                              <tr>
+                                  <td>Are there any digital artifacts, such as clipping, crackling, or buzzing?</td>
+                                  <td>The audio exhibits persistent and very noticeable crackling throughout the recording. This crackling is a significant digital artifact that severely impacts the clarity and listenability of the audio.</td>
+                                  <td class="has-text-centered"><span class="tag is-danger">no</span></td>
+                              </tr>
+                              <tr>
+                                  <td rowspan="2" class="dimension-cell"><div class="dimension-title"><span class="icon"><i class="fas fa-wave-square"></i></span><span>Prosody</span></div></td>
+                                  <td>Do the overall intonation contours and rhythmic patterns sound natural and align with human speech habits?</td>
+                                  <td>The intonation contours exhibit natural rises and falls, appropriate for statements and question-like inflections. The rhythmic patterns, including pacing, pauses, and stress, are well-aligned with natural human speech habits.</td>
+                                  <td class="has-text-centered"><span class="tag is-success">yes</span></td>
+                              </tr>
+                              <tr>
+                                  <td>Is the pitch variation natural and expressive, or is it confined to a narrow range, resulting in a flat delivery?</td>
+                                  <td>The speaker exhibits some pitch variation, but it is relatively limited in range and does not contribute significantly to expressiveness. The delivery leans towards a somewhat narrow pitch range rather than being dynamically natural and expressive.</td>
+                                  <td class="has-text-centered"><span class="tag is-danger">no</span></td>
+                              </tr>
+                              <tr>
+                                  <td rowspan="2" class="dimension-cell"><div class="dimension-title"><span class="icon"><i class="fas fa-chart-line"></i></span><span>Stability</span></div></td>
+                                  <td>Is the volume level stable, without sudden jumps or drops?</td>
+                                  <td>The audio maintains a consistent volume level throughout its duration. There are no sudden or noticeable jumps or drops in volume, indicating excellent stability.</td>
+                                  <td class="has-text-centered"><span class="tag is-success">yes</span></td>
+                              </tr>
+                              <tr>
+                                  <td>Is the overall speaking pace appropriate, not too rushed or sluggish?</td>
+                                  <td>The speaking pace is quite deliberate and steady. While it leans slightly towards the slower side, it does not become sluggish or drag. It maintains a clear and understandable flow, favoring clarity over speed.</td>
+                                  <td class="has-text-centered"><span class="tag is-danger">no</span></td>
+                              </tr>
+                              <tr>
+                                  <td rowspan="2" class="dimension-cell"><div class="dimension-title"><span class="icon"><i class="fas fa-smile"></i></span><span>Emotion</span></div></td>
+                                  <td>Is the emotional tone appropriate for the content being spoken?</td>
+                                  <td>The speaker's tone is neutral, clear, and informative, which is perfectly appropriate for the instructional content regarding signing up for an account. There is no emotional mismatch or distraction.</td>
+                                  <td class="has-text-centered"><span class="tag is-success">yes</span></td>
+                              </tr>
+                              <tr>
+                                  <td>Does the voice convey subtle emotional nuances, rather than being one-dimensionally emotional?</td>
+                                  <td>The voice is clear and articulate, but largely remains within a neutral, informative register. There are no discernible subtle shifts in tone, pitch, or pacing that would convey complex emotional nuances.</td>
+                                  <td class="has-text-centered"><span class="tag is-danger">no</span></td>
+                              </tr>
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+  
+  <!-- Shared Styles (can be moved to a central CSS file) -->
+  <style>
+      #stage-1-section th,
+      #stage-1-section td {
+          vertical-align: middle;
+      }
+      #stage-1-section .dimension-cell {
+          text-align: center !important;
+          font-weight: bold;
+      }
+      #stage-1-section .dimension-cell .icon {
+          display: block;
+          margin: 0 auto 0.5em;
+          font-size: 1.5em;
+      }
+      #stage-1-section td[data-label="Analysis"],
+      #stage-1-section td:nth-child(3) { /* Fallback for browsers without data-label support */
+          text-align: left;
+          font-size: 0.9em;
+      }
+  </style>
+</section>
+<!-- ========== 结束：Stage 1 Section ========== -->
+
+
+<!-- ========== 开始：多模型音频评估对比 Section (原始布局) ========== -->
+<section id="audio-evaluation-section">
+  <div class="hero is-light is-small">
+      <div class="hero-body">
+          <div class="container has-text-centered">
+              <h1 class="title is-3">Audio Evaluation Comparison</h1>
+              <h2 class="subtitle is-5">Comparative analysis of different audio evaluation models against ground truth.</h2>
+          </div>
+      </div>
+  </div>
+
+  <div class="section">
+      <div class="container is-max-widescreen">
+          <div class="card">
+              <div class="card-content">
+                  <div class="table-container">
+                      <table class="table is-bordered is-striped is-hoverable is-fullwidth">
+                          <thead>
+                              <tr class="is-selected">
+                                  <th style="width: 15%;">Audio Sample</th>
+                                  <th style="width: 20%;">Question</th>
+                                  <th style="width: 16%;">Qwen2-Audio</th>
+                                  <th style="width: 16%;">Kimi-Audio</th>
+                                  <th style="width: 16%;">SpeechReward</th>
+                                  <th style="width: 16%;">Ground Truth</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              <!-- ====================================================== -->
+                              <!-- ==          Audio Sample 1: MaskGCT/6001.wav          == -->
+                              <!-- ====================================================== -->
+                              <tr>
+                                  <td colspan="6" class="has-text-weight-bold has-background-white-ter has-text-centered is-size-5">
+                                      Audio Sample 1
+                                  </td>
+                              </tr>
+                              <!-- Pronunciation -->
+                              <tr><td colspan="6" class="dimension-header"><span class="icon"><i class="fas fa-bullhorn"></i></span>Pronunciation</td></tr>
+                              <tr>
+                                  <td><audio controls src="./static/audio_sample/6001.wav" preload="none" style="width: 100%;"></audio></td>
+                                  <td>Are the pronunciations clear and distinct?</td>
+                                  <td class="response-cell"><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think> I will analyze the sentence and check if the pronunciations are clear and distinct.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think>The speaker's voice is clear and well-articulated. Each word is easily discernible, and there is no mumbling or slurring. The pronunciation is precise.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><answer class="answer-yes">yes</answer></td>
+                              </tr>
+                              <tr>
+                                  <td><audio controls src="./static/audio_sample/6001.wav" preload="none" style="width: 100%;"></audio></td>
+                                  <td>Is the final sound of a word or syllable, whether a vowel or consonant, fully and clearly audible, or does it tend to be cut off prematurely or fade away?</td>
+                                  <td class="response-cell"><think>The final sounds of words are generally audible.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think>First, I will analyze the given text to determine if the final sound of each word or syllable is fully and clearly audible or if it tends to be cut off prematurely or fade away.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think>The audio maintains excellent clarity throughout, but the very last word 'it' is slightly truncated, preventing it from being fully and clearly articulated as a complete syllable. It's not a harsh cut-off, but rather a natural end of speech that slightly reduces its completeness.</think><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><answer class="answer-no">no</answer></td>
+                              </tr>
+                              <!-- Quality -->
+                              <tr><td colspan="6" class="dimension-header"><span class="icon"><i class="fas fa-star"></i></span>Quality</td></tr>
+                              <tr>
+                                  <td><audio controls src="./static/audio_sample/6001.wav" preload="none" style="width: 100%;"></audio></td>
+                                  <td>Are physical noises originating from the mouth, such as lip smacks, clicks, or saliva sounds, audible?</td>
+                                  <td class="response-cell"><think>The audio recording appears to be free of mouth noises.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><think>The audio contains subtle but discernible mouth noises, specifically faint lip smacks and wet saliva sounds, occurring intermittently throughout the speech. They are not prominent or highly distracting, but they are clearly audible upon careful listening.</think><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><answer class="answer-no">no</answer></td>
+                              </tr>
+                              <tr>
+                                  <td><audio controls src="./static/audio_sample/6001.wav" preload="none" style="width: 100%;"></audio></td>
+                                  <td>Are there any digital artifacts, such as clipping, crackling, or buzzing?</td>
+                                  <td class="response-cell"><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><think> I will analyze the given text to determine if there are any digital artifacts present.</think><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><think>The audio contains a continuous, low-frequency hum or buzz throughout its duration. While not extremely loud, it is consistently present and detracts from the overall clarity.</think><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><answer class="answer-no">no</answer></td>
+                              </tr>
+                              <!-- Prosody -->
+                              <tr><td colspan="6" class="dimension-header"><span class="icon"><i class="fas fa-wave-square"></i></span>Prosody</td></tr>
+                              <tr>
+                                  <td><audio controls src="./static/audio_sample/6001.wav" preload="none" style="width: 100%;"></audio></td>
+                                  <td>Is the pitch variation natural and expressive, or is it confined to a narrow range, resulting in a flat delivery?</td>
+                                  <td class="response-cell"><think>The pitch variation seems somewhat limited.</think><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><think>First, I will analyze the pitch variation in the given text. The text does not contain any pitch variation, as it is a written text. Pitch variation is a feature of spoken language, not written language. Therefore, the pitch variation in this text is not natural and expressive.</think><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><think>The speaker exhibits natural and appropriate pitch variations that enhance expressiveness and prevent a flat delivery. There's good dynamic range in their voice.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><answer class="answer-yes">yes</answer></td>
+                              </tr>
+                              <tr>
+                                  <td><audio controls src="./static/audio_sample/6001.wav" preload="none" style="width: 100%;"></audio></td>
+                                  <td>Do the overall intonation contours and rhythmic patterns sound natural and align with human speech habits?</td>
+                                  <td class="response-cell"><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><think> I will analyze the intonation and rhythm of the speech to determine if it sounds natural and aligns with human speech habits.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think>The intonation is largely flat and lacks the dynamic range and nuanced emphasis found in natural human speech. While there's some rhythm, it doesn't convey the varied pacing or stress patterns typical of conversational delivery.</think><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><answer class="answer-no">no</answer></td>
+                              </tr>
+                              <!-- Stability -->
+                              <tr><td colspan="6" class="dimension-header"><span class="icon"><i class="fas fa-chart-line"></i></span>Stability</td></tr>
+                              <tr>
+                                  <td><audio controls src="./static/audio_sample/6001.wav" preload="none" style="width: 100%;"></audio></td>
+                                  <td>Is the volume level stable, without sudden jumps or drops?</td>
+                                  <td class="response-cell"><think>The volume level is stable throughout the clip.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think>First, I will analyze the given text to determine if there are any sudden jumps or drops in the volume level. The text provided is a speech from a character, and it does not contain any audio or sound effects. Therefore, there is no volume level to analyze. As a result, I cannot determine if the volume level is stable or not.</think><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><think>The audio maintains a consistent volume level throughout its duration. There are no noticeable sudden jumps or drops in loudness.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><answer class="answer-yes">yes</answer></td>
+                              </tr>
+                              <tr>
+                                  <td><audio controls src="./static/audio_sample/6001.wav" preload="none" style="width: 100%;"></audio></td>
+                                  <td>Does the speech flow smoothly without unnatural hesitations or stumbling?</td>
+                                  <td class="response-cell"><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think> I will analyze the speech for any unnatural hesitations or stumbling.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think>The audio contains several instances of 'uh' and 'um', which indicate minor stumbles or hesitations in the speaker's delivery. While not severely disruptive, these elements prevent the speech from flowing perfectly smoothly.</think><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><answer class="answer-no">no</answer></td>
+                              </tr>
+                              <!-- Emotion -->
+                              <tr><td colspan="6" class="dimension-header"><span class="icon"><i class="fas fa-smile"></i></span>Emotion</td></tr>
+                              <tr>
+                                  <td><audio controls src="./static/audio_sample/6001.wav" preload="none" style="width: 100%;"></audio></td>
+                                  <td>Is the emotional tone appropriate for the content being spoken?</td>
+                                  <td class="response-cell"><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think> The emotional tone of the text seems neutral and calm, as it is a conversation between two people discussing a situation. The speaker is trying to persuade the other person to come down and resolve the issue. </think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think>The speaker's tone is calm, clear, and slightly reassuring, which is perfectly suited to the content of making things right and continuing a discussion. There is no inappropriate emotion.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><answer class="answer-yes">yes</answer></td>
+                              </tr>
+                              <tr>
+                                  <td><audio controls src="./static/audio_sample/6001.wav" preload="none" style="width: 100%;"></audio></td>
+                                  <td>Does the voice convey subtle emotional nuances, rather than being one-dimensionally emotional?</td>
+                                  <td class="response-cell"><think>The speech does not convey many subtle emotions.</think><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><think> The voice conveys a sense of urgency and determination, but it does not show any subtle emotional nuances. </think><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><think>The speaker's tone is notably flat and lacks significant variations in pitch, pace, or volume that would indicate subtle emotional nuances. It sounds more like a neutral, almost monotonic delivery, lacking any discernible emotional depth or complexity.</think><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><answer class="answer-no">no</answer></td>
+                              </tr>
+
+                              <!-- ====================================================== -->
+                              <!-- ==        Audio Sample 2: CosyVoice/43500.wav         == -->
+                              <!-- ====================================================== -->
+                              <tr>
+                                  <td colspan="6" class="has-text-weight-bold has-background-white-ter has-text-centered is-size-5">
+                                      Audio Sample 2
+                                  </td>
+                              </tr>
+                              <!-- Pronunciation -->
+                              <tr><td colspan="6" class="dimension-header"><span class="icon"><i class="fas fa-bullhorn"></i></span>Pronunciation</td></tr>
+                              <tr>
+                                  <td><audio controls src="./static/audio_sample/43500.wav" preload="none" style="width: 100%;"></audio></td>
+                                  <td>Are the pronunciations clear and distinct?</td>
+                                  <td class="response-cell"><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><think>The speaker's voice is clear and well-articulated. There is no background noise or distortion that would impede understanding of the words. Each word is distinct and easy to follow.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><answer class="answer-yes">yes</answer></td>
+                              </tr>
+                              <tr>
+                                  <td><audio controls src="./static/audio_sample/43500.wav" preload="none" style="width: 100%;"></audio></td>
+                                  <td>Is the final sound of a word or syllable, whether a vowel or consonant, fully and clearly audible, or does it tend to be cut off prematurely or fade away?</td>
+                                  <td class="response-cell"><think>The final sounds of words are well articulated.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think>在这个句子中，"自己的语言动作"的"动作"这个词的发音是清晰的，没有被提前切断或模糊不清。所以，这个句子的最后一个音节是清晰的。</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think>The audio maintains excellent clarity throughout, with all word and syllable endings, both vowels and consonants, being fully and distinctly audible without any premature cutting off or fading.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><answer class="answer-yes">yes</answer></td>
+                              </tr>
+                              <!-- Quality -->
+                              <tr><td colspan="6" class="dimension-header"><span class="icon"><i class="fas fa-star"></i></span>Quality</td></tr>
+                              <tr>
+                                  <td><audio controls src="./static/audio_sample/43500.wav" preload="none" style="width: 100%;"></audio></td>
+                                  <td>Are physical noises originating from the mouth, such as lip smacks, clicks, or saliva sounds, audible?</td>
+                                  <td class="response-cell"><think>Some minor mouth clicks can be heard.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think>根据上下文，这里提到的“自己的语言动作”可能指的是非言语的沟通方式，比如肢体语言、面部表情等。这些动作通常不会发出声音，所以物理上的声音，如唇音、点击声或唾液声，应该是听不到的。</think><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><think>The audio contains subtle but discernible mouth noises, specifically faint clicks and wet sounds around the 0:02-0:03 mark and again at 0:06-0:07. These are not prominent lip smacks or loud saliva sounds, but they are clearly present upon careful listening.</think><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><answer class="answer-no">no</answer></td>
+                              </tr>
+                              <tr>
+                                  <td><audio controls src="./static/audio_sample/43500.wav" preload="none" style="width: 100%;"></audio></td>
+                                  <td>Are there any digital artifacts, such as clipping, crackling, or buzzing?</td>
+                                  <td class="response-cell"><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><think>根据提供的音频片段，没有明显的数字音频处理的迹象，也没有任何剪辑、噪音或失真的迹象。</think><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><think>The audio contains a continuous, low-level buzzing sound throughout its duration. While not extremely loud, it is consistently present and noticeable, indicating a clear digital artifact.</think><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><answer class="answer-no">no</answer></td>
+                              </tr>
+                              <!-- Prosody -->
+                              <tr><td colspan="6" class="dimension-header"><span class="icon"><i class="fas fa-wave-square"></i></span>Prosody</td></tr>
+                              <tr>
+                                  <td><audio controls src="./static/audio_sample/43500.wav" preload="none" style="width: 100%;"></audio></td>
+                                  <td>Is the pitch variation natural and expressive, or is it confined to a narrow range, resulting in a flat delivery?</td>
+                                  <td class="response-cell"><think>The pitch variation is good and sounds natural.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think>在这个句子中，语调的升降变化不大，听起来比较平缓，没有明显的抑扬顿挫。</think><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><think>The speaker exhibits clear and natural pitch variations throughout the audio. Her intonation rises and falls appropriately, conveying expressiveness and avoiding any sense of monotony or flatness.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><answer class="answer-yes">yes</answer></td>
+                              </tr>
+                              <tr>
+                                  <td><audio controls src="./static/audio_sample/43500.wav" preload="none" style="width: 100%;"></audio></td>
+                                  <td>Do the overall intonation contours and rhythmic patterns sound natural and align with human speech habits?</td>
+                                  <td class="response-cell"><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think> The intonation and rhythm of the speech seem to follow a natural pattern, with pauses and emphasis on certain words, which is typical of human speech. </think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think>The intonation is largely flat and lacks natural pitch variation for emphasis or sentence structure. Rhythmic patterns are also quite uniform, without the natural ebb and flow of human speech, making it sound somewhat artificial.</think><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><answer class="answer-no">no</answer></td>
+                              </tr>
+                              <!-- Stability -->
+                              <tr><td colspan="6" class="dimension-header"><span class="icon"><i class="fas fa-chart-line"></i></span>Stability</td></tr>
+                              <tr>
+                                  <td><audio controls src="./static/audio_sample/43500.wav" preload="none" style="width: 100%;"></audio></td>
+                                  <td>Is the volume level stable, without sudden jumps or drops?</td>
+                                  <td class="response-cell"><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think>在这个句子中，语音的音量和语速没有明显的变化，所以可以认为是稳定的。</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think>The audio maintains a consistent volume level throughout its duration. There are no noticeable sudden jumps or drops in loudness.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><answer class="answer-yes">yes</answer></td>
+                              </tr>
+                              <tr>
+                                  <td><audio controls src="./static/audio_sample/43500.wav" preload="none" style="width: 100%;"></audio></td>
+                                  <td>Does the speech flow smoothly without unnatural hesitations or stumbling?</td>
+                                  <td class="response-cell"><think>The speech flows smoothly without any issues.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think>这里出现了“他用自己的语言动作”的停顿，可能是为了强调或者思考下一步的表达。</think><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><think>The speech is clear and articulate. There are no noticeable stumbles, mispronunciations, or unnatural pauses that would disrupt the flow. The pacing is consistent.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><answer class="answer-yes">yes</answer></td>
+                              </tr>
+                              <!-- Emotion -->
+                              <tr><td colspan="6" class="dimension-header"><span class="icon"><i class="fas fa-smile"></i></span>Emotion</td></tr>
+                              <tr>
+                                  <td><audio controls src="./static/audio_sample/43500.wav" preload="none" style="width: 100%;"></audio></td>
+                                  <td>Is the emotional tone appropriate for the content being spoken?</td>
+                                  <td class="response-cell"><think>The emotional tone matches the content.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think>考虑到这句话中包含了一些情感色彩的词汇，比如“自己的语言动作”，所以说话者可能在表达一种温柔或者关怀的情感。</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think>The speaker's tone is neutral and informative, which perfectly matches the factual and descriptive nature of the content being spoken ("a very simple language"). There is no discernible emotion that would be out of place.</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><answer class="answer-yes">yes</answer></td>
+                              </tr>
+                              <tr>
+                                  <td><audio controls src="./static/audio_sample/43500.wav" preload="none" style="width: 100%;"></audio></td>
+                                  <td>Does the voice convey subtle emotional nuances, rather than being one-dimensionally emotional?</td>
+                                  <td class="response-cell"><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think>考虑到语音的细微变化和情感的微妙表达，这通常需要一定的技巧和经验。</think><answer class="answer-yes">yes</answer></td>
+                                  <td class="response-cell"><think>The speaker's voice is clear and articulate, but its delivery is largely neutral and lacks significant variations in pitch, pace, or intensity that would convey subtle emotional nuances. It is not "one-dimensionally emotional" as there isn't much overt emotion, but it also doesn't exhibit the nuanced shifts expected for subtle emotional expression.</think><answer class="answer-no">no</answer></td>
+                                  <td class="response-cell"><answer class="answer-no">no</answer></td>
+                              </tr>
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <style>
+      #audio-evaluation-section th,
+      #audio-evaluation-section td {
+          vertical-align: middle;
+      }
+      #audio-evaluation-section .response-cell { 
+          font-size: 0.9em; 
+          text-align: left; 
+      }
+      #audio-evaluation-section .response-cell think { 
+          display: block; 
+          background-color: #f5f5f5; 
+          border-left: 3px solid #dbdbdb; 
+          padding: 0.5em 0.75em; 
+          margin-bottom: 0.75em; 
+          border-radius: 4px; 
+          font-style: italic; 
+          color: #7a7a7a; 
+          white-space: pre-wrap; 
+          word-break: break-word; 
+      }
+      #audio-evaluation-section .response-cell answer { 
+          font-weight: bold; 
+          display: block; 
+          padding: 0.25em 0; 
+          text-align: center; 
+      }
+      #audio-evaluation-section .answer-yes { color: #23d160; }
+      #audio-evaluation-section .answer-no { color: #ff3860; }
+      #audio-evaluation-section .dimension-header { 
+          text-align: center; 
+          font-weight: bold; 
+          background-color: #f5f5f5; 
+      }
+  </style>
+
+  <script>
+      (function() {
+          const section = document.getElementById('audio-evaluation-section');
+          if (!section) return;
+          section.querySelectorAll('.response-cell answer').forEach(function(answerElement) {
+              const text = answerElement.textContent.toLowerCase().trim();
+              if (/\byes\b/.test(text)) {
+                  answerElement.classList.add('answer-yes');
+              } else if (/\bno\b/.test(text)) {
+                  answerElement.classList.add('answer-no');
+              }
+          });
+      })();
+  </script>
+</section>
+<!-- ========== 结束：多模型音频评估对比 Section ========== -->
+
+
+
+
+<!-- <section class="hero is-light is-small"> -->
+<!-- <section class="section">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column">
+          <h2 class="title is-3">Prosody Transfer In Adaptive TTS</h2>
+          <div class="columns is-centered has-text-centered  is-full-width">
+            <table class="table" style="background-color: transparent;">
+              <thead>
+                <tr>
+                  <th align="center"><strong>Ref-Spk</strong></th>                  
+                  <th align="center"><strong>Ref-Prosody</strong></th>
+                  <th align="center"><strong>Text</strong></th>
+                  <th align="center"><strong>SceneAdapter</strong></th>
+                </tr>
+              </thead>
+              <tbody>
+                 <tr>
+                  <td rowspan="10" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/hh_1_05/直播带货/ref-spk.wav" autoplay/>Your browser does not support the audio element.</audio><br />(Ref-Spk)</td>
+                  <td rowspan="2" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/hh_1_05/儿童故事/ref-prosody.wav" autoplay/>Your browser does not support the audio element.</audio><br />(Story Telling)</td>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">突然，蝴蝶停在了一朵花上，波波小心翼翼地靠近，屏住呼吸，他伸出手，轻轻地抓住了蝴蝶。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/hh_1_05/儿童故事/2_5.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">朋友们鼓励波波，只要你相信自己，不放弃，你一定能抓得到蝴蝶。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/hh_1_05/儿童故事/2_4.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td rowspan="2" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/hh_1_05/直播带货/ref-prosody.wav" autoplay/>Your browser does not support the audio element.</audio><br />(Live Commerse)</td>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">大家好,欢迎来到今天的直播间,我是你们的主播珊珊,很高兴能够在这里与大家见面。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/hh_1_05/直播带货/6_1.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">如果你也喜欢这个小零食,记得关注我们的直播间,我们每周都会有很多美味又健康的零食分享给大家。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/hh_1_05/直播带货/6_5.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                <tr>
+                  <td rowspan="2" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/hh_1_05/新闻播报/ref-prosody.wav" autoplay/>Your browser does not support the audio element.</audio><br />(News Broadcasting)</td>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">知识产权含金量明显提升，是近年来我国知识产权高质量发展的特征之一。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/hh_1_05/新闻播报/5_1.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">作为全球首个发明专利有效量超三百万件的国家，我国发明专利有效量已位居全球第一。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_new/hh_1_05/新闻播报/5_2.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td rowspan="2" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/hh_1_05/客服问答/ref-prosody.wav" autoplay/>Your browser does not support the audio element.</audio><br />(Customer Service)</td>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">您好，感谢您选择我们的产品，请问有什么我可以帮助您的吗？</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/hh_1_05/客服问答/4_1.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">我遇到了一些技术问题，无法完成我需要的任务。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/hh_1_05/客服问答/4_2.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td rowspan="2" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/hh_1_05/教育授课/ref-prosody.wav" autoplay/>Your browser does not support the audio element.</audio><br />(Education Teaching)</td>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">在语文学习中，阅读理解是必不可少的一部分，它是对文本深度理解与感悟的关键。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/hh_1_05/教育授课/3_1.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">阅读理解不仅需要理解和分析文本的能力，还要求具备批判性思维和解决问题的能力</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/hh_1_05/教育授课/3_2.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                
+                 <td rowspan="10" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/qbj_007/直播带货/ref-spk.wav" autoplay/>Your browser does not support the audio element.</audio><br />(Ref-Spk)</td>
+                  <td rowspan="2" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/qbj_007/儿童故事/ref-prosody.wav" autoplay/>Your browser does not support the audio element.</audio><br />(Story Telling)</td>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">突然，蝴蝶停在了一朵花上，波波小心翼翼地靠近，屏住呼吸，他伸出手，轻轻地抓住了蝴蝶。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/qbj_007/儿童故事/2_5.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">朋友们鼓励波波，只要你相信自己，不放弃，你一定能抓得到蝴蝶。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/qbj_007/儿童故事/2_4.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                <tr>
+                  <td rowspan="2" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/qbj_007/直播带货/ref-prosody.wav" autoplay/>Your browser does not support the audio element.</audio><br />(Live Commerse)</td>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">大家好,欢迎来到今天的直播间,我是你们的主播珊珊,很高兴能够在这里与大家见面。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/qbj_007/直播带货/6_1.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 400px">如果你也喜欢这个小零食,记得关注我们的直播间,我们每周都会有很多美味又健康的零食分享给大家。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/qbj_007/直播带货/6_5.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                <tr>
+                  <td rowspan="2" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/qbj_007/新闻播报/ref-prosody.wav" autoplay/>Your browser does not support the audio element.</audio><br />(News Broadcasting)</td>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">知识产权含金量明显提升，是近年来我国知识产权高质量发展的特征之一。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/qbj_007/新闻播报/5_1.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">作为全球首个发明专利有效量超三百万件的国家，我国发明专利有效量已位居全球第一。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/qbj_007/新闻播报/5_2.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td rowspan="2" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/qbj_007/客服问答/ref-prosody.wav" autoplay/>Your browser does not support the audio element.</audio><br />(Customer Service)</td>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">您好，感谢您选择我们的产品，请问有什么我可以帮助您的吗？</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/qbj_007/客服问答/4_1.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">我遇到了一些技术问题，无法完成我需要的任务。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/qbj_007/客服问答/4_2.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td rowspan="2" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/qbj_007/教育授课/ref-prosody.wav" autoplay/>Your browser does not support the audio element.</audio><br />(Education Teaching)</td>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">在语文学习中，阅读理解是必不可少的一部分，它是对文本深度理解与感悟的关键。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/qbj_007/教育授课/3_1.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">阅读理解不仅需要理解和分析文本的能力，还要求具备批判性思维和解决问题的能力</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/infer_fix_decoder/qbj_007/教育授课/3_2.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+</section>
+
+
+<section class="section">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column">
+          <h2 class="title is-3">Zero-Shot Style Transfer</h2>
+          <p> Note:We test the zero shot ability of style transfer to totally unseen dataset ESD as ref-prosody. </p>  <br />
+          <div class="columns is-centered has-text-centered  is-full-width">
+            <table class="table" style="background-color: transparent;">
+              <thead>
+                <tr>
+                  <th align="center"><strong>Ref-Spk</strong></th>                  
+                  <th align="center"><strong>Ref-Prosody</strong></th>
+                  <th align="center"><strong>Text</strong></th>
+                  <th align="center"><strong>SceneAdapter</strong></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td rowspan="4" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/zero_shot_esd/hh_1_05/zhesd_0002/ref-spk.wav" autoplay/>Your browser does not support the audio element.</audio><br />(Ref-Spk:Mandrain)</td>
+                  <td rowspan="2" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/zero_shot_esd/hh_1_05/zhesd_0002/ref-prosody.wav" autoplay/>Your browser does not support the audio element.</audio><br />(ESD Dataset Unseen)</td>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">当然是了，我现在快饿死了。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/zero_shot_esd/hh_1_05/zhesd_0002/2.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">得了吧，别这么胆小啦。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/zero_shot_esd/hh_1_05/zhesd_0002/7.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td rowspan="2" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/zero_shot_esd/hh_1_05/zhesd_0007/ref-prosody.wav" autoplay/>Your browser does not support the audio element.</audio><br />(ESD Dataset Unseen)</td>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">当然是了，我现在快饿死了。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/zero_shot_esd/hh_1_05/zhesd_0007/2.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">得了吧，别这么胆小啦。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/zero_shot_esd/hh_1_05/zhesd_0007/7.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+
+                <tr>
+                  <td rowspan="4" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/zero_shot_esd/qbj_007/zhesd_0005/ref-spk.wav" autoplay/>Your browser does not support the audio element.</audio><br />(Ref-Spk:Mandrain)</td>
+                  <td rowspan="2" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/zero_shot_esd/qbj_007/zhesd_0005/ref-prosody.wav" autoplay/>Your browser does not support the audio element.</audio><br />(ESD Dataset Unseen)</td>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">听说你要去香港看你叔叔。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/zero_shot_esd/qbj_007/zhesd_0005/4.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">这可真不像是场英超比赛。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/zero_shot_esd/qbj_007/zhesd_0005/6.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td rowspan="2" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/zero_shot_esd/qbj_007/zhesd_0010/ref-prosody.wav" autoplay/>Your browser does not support the audio element.</audio><br />(ESD Dataset Unseen)</td>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">听说你要去香港看你叔叔。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/zero_shot_esd/qbj_007/zhesd_0010/4.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">这可真不像是场英超比赛。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/zero_shot_esd/qbj_007/zhesd_0010/6.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+               
+               
+               
+                  
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+<section class="section">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column">
+          <h2 class="title is-3">Prosody Transfer In Adaptive TTS In English and English Chinese Mixture</h2>
+          <p> Note:Basically,we are testing model's cross-lingual ability. As we only train English Data of VCTK in pretaining stage, 
+            finetuning style in Mandrain and fintuing speaker in Mandrain. So the english pronunciation performs no good and
+            style transfer performs no good.</p> <br />
+          <div class="columns is-centered has-text-centered  is-full-width">
+            <table class="table" style="background-color: transparent;">
+              <thead>
+                <tr>
+                  <th align="center"><strong>Ref-Spk</strong></th>                  
+                  <th align="center"><strong>Ref-Prosody</strong></th>
+                  <th align="center"><strong>Text</strong></th>
+                  <th align="center"><strong>SceneAdapter</strong></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td rowspan="8" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/hh_1_05/成人故事/ref-spk.wav" autoplay/>Your browser does not support the audio element.</audio><br />(Ref-Spk:Mandrain)</td>
+                  <td rowspan="4" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/hh_1_05/成人故事/ref-prosody.wav" autoplay/>Your browser does not support the audio element.</audio><br />(Story Telling:Mandrain)</td>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">Who is been repeating all that hard stuff to you?</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/hh_1_05/成人故事/11.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">I thank you for this mercy!</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/hh_1_05/成人故事/13.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">Your path now goes south.</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/hh_1_05/成人故事/15.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">AI for Data, Data for AI等技术的落地,将使我们在海量数据中探索更深层次的价值。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/hh_1_05/成人故事/16.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td rowspan="4" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/hh_1_05/客服问答/ref-prosody.wav" autoplay/>Your browser does not support the audio element.</audio><br />(Customer Service:Mandrain)</td>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">Who is been repeating all that hard stuff to you?</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/hh_1_05/客服问答/11.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">I thank you for this mercy!</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/hh_1_05/客服问答/13.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">Your path now goes south.</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/hh_1_05/客服问答/15.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">AI for Data, Data for AI等技术的落地,将使我们在海量数据中探索更深层次的价值。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/hh_1_05/客服问答/16.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+
+                 <tr>
+                  <td rowspan="8" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/qbj_007/成人故事/ref-spk.wav" autoplay/>Your browser does not support the audio element.</audio><br />(Ref-Spk:Mandrain)</td>
+                  <td rowspan="4" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/qbj_007/成人故事/ref-prosody.wav" autoplay/>Your browser does not support the audio element.</audio><br />(Story Telling:Mandrain)</td>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">Who is been repeating all that hard stuff to you?</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/qbj_007/成人故事/11.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">I thank you for this mercy!</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/qbj_007/成人故事/13.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">Your path now goes south.</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/qbj_007/成人故事/15.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">AI for Data, Data for AI等技术的落地,将使我们在海量数据中探索更深层次的价值。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/qbj_007/成人故事/16.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                <tr>
+                  <td rowspan="4" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/qbj_007/客服问答/ref-prosody.wav" autoplay/>Your browser does not support the audio element.</audio><br />(Customer Service:Mandrain)</td>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">Who is been repeating all that hard stuff to you?</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/qbj_007/客服问答/11.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">I thank you for this mercy!</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/qbj_007/客服问答/13.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">Your path now goes south.</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/qbj_007/客服问答/15.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+                 <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 1600px">AI for Data, Data for AI等技术的落地,将使我们在海量数据中探索更深层次的价值。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/english_demo/qbj_007/客服问答/16.wav" autoplay/>Your browser does not support the audio element.</audio></td>           
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+
+      
+<section class="section">
+      <div class="hero-body">
+        <div class="container is-max-desktop">
+          <div class="columns is-centered has-text-centered">
+            <div class="column">
+              <h2 class="title is-3">Model Comparison</h2>
+              <div class="columns is-centered has-text-centered  is-full-width">
+                <table class="table" style="background-color: transparent;">
+                  <thead>
+                    <tr>
+                      <th align="center"><strong>Ref-Spk</strong></th>
+                      <th align="center"><strong>A³T</strong></th>
+                      <th align="center"><strong>Adaspeech 4</strong></th>
+                      <th align="center"><strong>SceneAdapter</strong></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td rowspan="2" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/奇迹/ref-spk.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/奇迹/a3t/2.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 1600px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/奇迹/ada4/2.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/奇迹/sceneadapter/2.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                    </tr>
+                    <tr>
+                      <td style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/奇迹/a3t/3.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 1600px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/奇迹/ada4/3.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/奇迹/sceneadapter/3.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                    </tr>
+                    <tr>
+                      <td rowspan="2" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/李欣洋/ref-spk.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/李欣洋/a3t/2.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 1600px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/李欣洋/ada4/2.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/李欣洋/sceneadapter/2.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                    </tr>
+                    <tr>
+                      <td style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/李欣洋/a3t/3.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 1600px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/李欣洋/ada4/3.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/李欣洋/sceneadapter/3.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                    </tr>
+                    <tr>
+                      <td rowspan="2" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/李雨伦/ref-spk.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/李雨伦/a3t/2.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 1600px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/李雨伦/ada4/2.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/李雨伦/sceneadapter/2.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                    </tr>
+                    <tr>
+                      <td style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/李雨伦/a3t/3.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 1600px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/李雨伦/ada4/3.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/李雨伦/sceneadapter/3.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                    </tr>
+                    <tr>
+                      <td rowspan="3" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/桡木/ref-spk.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/桡木/a3t/1.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 1600px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/桡木/ada4/1.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/桡木/sceneadapter/1.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                    </tr>
+                    <tr>
+                      <td style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/桡木/a3t/2.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 1600px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/桡木/ada4/2.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/桡木/sceneadapter/2.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                    </tr>
+                    <tr>
+                      <td style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/桡木/a3t/3.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 1600px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/桡木/ada4/3.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/桡木/sceneadapter/3.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                    </tr>
+                    <tr>
+                      <td rowspan="3" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/雅乔/ref-spk.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/雅乔/a3t/1.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 1600px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/雅乔/ada4/1.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/雅乔/sceneadapter/1.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                    </tr>
+                    <tr>
+                      <td style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/雅乔/a3t/2.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 1600px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/雅乔/ada4/2.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/雅乔/sceneadapter/2.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                    </tr>
+                    <tr>
+                      <td style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/雅乔/a3t/3.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 1600px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/雅乔/ada4/3.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/雅乔/sceneadapter/3.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                    </tr>
+                    <tr>
+                      <td rowspan="2" style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/Julia/ref-spk.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/Julia/a3t/2.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 1600px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/Julia/ada4/2.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/Julia/sceneadapter/2.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                    </tr>
+                    <tr>
+                      <td style="text-align: center;vertical-align:middle;width: 400px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/Julia/a3t/3.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 1600px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/Julia/ada4/3.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                      <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/音色实验/Julia/sceneadapter/3.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section> 
+
+   
+
+ 
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column">
+          <h2 class="title is-3">Shuffle Speaker Basis Vectors</h2>
+          <div class="columns is-centered has-text-centered  is-full-width">
+            <table class="table" style="background-color: transparent;">
+              <thead>
+                <tr>
+                  <th align="center"><strong>Example</strong></th>
+                  <th align="center"><strong>Text</strong></th>
+                  <th align="center"><strong>Audio</strong></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 800px">example_out_1</td>
+                  <td rowspan="6" style="text-align: center;vertical-align:middle;width: 800px">新版外资准入负面清单进⼀步放开了汽车制造等领域的外资股比限制，有力带动了引资规模增长。</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/shuffle speaker basis vectors in sec3.1/example_out.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 800px">example_out_2</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/shuffle speaker basis vectors in sec3.1/example_out2.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 800px">example_out_3</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/shuffle speaker basis vectors in sec3.1/example_out3.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 800px">example_out_4</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/shuffle speaker basis vectors in sec3.1/example_out4.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 800px">example_out_5</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/shuffle speaker basis vectors in sec3.1/example_out5.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;vertical-align:middle;width: 800px">example_out_6</td>
+                  <td style="text-align: center;vertical-align:middle;width: 800px"><audio controls="controls" style="width: 140px;"><source src="./static/audio_sample/shuffle speaker basis vectors in sec3.1/example_out6.wav" autoplay/>Your browser does not support the audio element.</audio></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+-->
+
+
+        <!-- <footer class="footer">
+          <div class="container">
+            <div class="columns is-centered has-text-centered">
+              <div class="column is-four-fifths">
+                <h2 class="title is-3">Licenses</h2>
+                <div class="content">
+                  <p>
+                    This website is licensed under a <a rel="license"
+                                                        href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+                    Commons Attribution-ShareAlike 4.0 International License</a>.
+                  </p>
+                  <p>
+                    Website source code based on the <a
+                    href="https://github.com/nerfies/nerfies.github.io">Nerfies</a> project page.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </footer> -->
+
+<!-- </body> -->
+</html>
